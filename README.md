@@ -17,7 +17,7 @@ Git adalah sistem kontrol versi terdistribusi yang memungkinkan pengembang melac
 ---
 
 ## Alur Kerja Dasar Git
-1. **Modifikasi File** di direktori kerja (working directory).
+1. **Modifikasi File** di direktori kerja.
 2. **Stage File** dengan perintah:
    ```bash
    git add
@@ -41,7 +41,7 @@ Git adalah sistem kontrol versi terdistribusi yang memungkinkan pengembang melac
 ### 1. **Konfigurasi Awal**
 - **Setel Nama dan Email Pengguna**:
   ```bash
-  git config --global user.name "Nama Anda"
+  git config --global user.name "Username Anda"
   git config --global user.email "email@example.com"
   ```
 
@@ -73,7 +73,7 @@ git init
   ```bash
   git log
   ```
-  atau
+  atau jika ingin lebih singkat bisa menggunakan
   ```bash
   git log --oneline
   ```
@@ -133,9 +133,9 @@ git init
 ### 2. **Tambahkan SSH Key ke GitHub**
 - Tampilkan kunci publik:
   ```bash
-  cat ~/.ssh/id_rsa.pub
+  cat ~/.ssh/id_rsa.pub 
   ```
-- Masuk ke GitHub → Settings → SSH and GPG Keys → New SSH Key.
+- Masuk ke GitHub -> Settings -> SSH and GPG Keys -> New SSH Key.
 - Paste kunci publik dan klik **Add SSH Key**.
 
 ### 3. **Gunakan SSH untuk Repository**
