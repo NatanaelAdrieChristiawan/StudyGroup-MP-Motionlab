@@ -1,13 +1,14 @@
+
 # StudyGroup-MP-Motionlab
 
-# Rangkuman Study Group
+## Rangkuman Study Group
 
-## Materi: Version Control (Git)
+### Materi: Version Control (Git)
 
-### Apa itu GIT?
+#### Apa itu GIT?
 Git adalah sistem kontrol versi terdistribusi yang memungkinkan pengembang melacak perubahan kode, berkolaborasi dengan tim, dan mengelola proyek dengan efisien.
 
-### Keunggulan Git:
+#### Keunggulan Git:
 - **Distributed Version Control**: Setiap pengembang memiliki salinan penuh dari seluruh riwayat proyek.
 - **Branching dan Merging**: Memungkinkan eksperimen tanpa mengganggu branch utama.
 - **Efisien**: Cepat dalam melakukan operasi commit, diff, dan merge.
@@ -17,9 +18,21 @@ Git adalah sistem kontrol versi terdistribusi yang memungkinkan pengembang melac
 
 ## Alur Kerja Dasar Git
 1. **Modifikasi File** di direktori kerja (working directory).
-2. **Stage File** dengan perintah `git add` untuk memasukkannya ke staging area.
-3. **Commit Perubahan** dengan perintah `git commit`, yang menyimpan snapshot ke repository lokal.
-4. **Push ke Remote Repository** dengan perintah `git push` untuk menyinkronkan perubahan ke server GitHub.
+2. **Stage File** dengan perintah:
+   ```bash
+   git add
+   ```
+   untuk memasukkannya ke staging area.
+3. **Commit Perubahan** dengan perintah:
+   ```bash
+   git commit
+   ```
+   yang menyimpan snapshot ke repository lokal.
+4. **Push ke Remote Repository** dengan perintah:
+   ```bash
+   git push
+   ```
+   untuk menyinkronkan perubahan ke server GitHub.
 
 ---
 
@@ -30,32 +43,117 @@ Git adalah sistem kontrol versi terdistribusi yang memungkinkan pengembang melac
   ```bash
   git config --global user.name "Nama Anda"
   git config --global user.email "email@example.com"
+  ```
 
 ### 2. **Inisialisasi Repository**
+```bash
 git init
+```
 
 ### 3. **Menambahkan dan Commit File**
-Menambahkan file tertentu: git add [nama_file]
-Menambahkan semua file yang dimodifikasi: git add .
-Commit Perubahan: git commit -m "Pesan commit"
+- Menambahkan file tertentu:
+  ```bash
+  git add [nama_file]
+  ```
+- Menambahkan semua file yang dimodifikasi:
+  ```bash
+  git add .
+  ```
+- Commit Perubahan:
+  ```bash
+  git commit -m "Pesan commit"
+  ```
 
 ### 4. **Melihat Status dan Log**
-Menampilkan status file (termodifikasi, staged, dll.): git status
-Menampilkan riwayat commit secara detail: git Log atau git log --oneline untuk tampilan yang lebih singkat
+- Menampilkan status file (termodifikasi, staged, dll.):
+  ```bash
+  git status
+  ```
+- Menampilkan riwayat commit secara detail:
+  ```bash
+  git log
+  ```
+  atau
+  ```bash
+  git log --oneline
+  ```
 
 ### 5. **Branching dan Merging**
-Membuat Branch Baru: git branch [nama_branch]
-Beralih ke Branch:git checkout [nama_branch]
-Membuat dan Beralih ke Branch Sekaligus: git checkout -b [nama_branch]
-Menggabungkan Branch (Merge): git merge [nama_branch]
+- Membuat Branch Baru:
+  ```bash
+  git branch [nama_branch]
+  ```
+- Beralih ke Branch:
+  ```bash
+  git checkout [nama_branch]
+  ```
+- Membuat dan Beralih ke Branch Sekaligus:
+  ```bash
+  git checkout -b [nama_branch]
+  ```
+- Menggabungkan Branch (Merge):
+  ```bash
+  git merge [nama_branch]
+  ```
 
 ### 6. **Sinkronisasi dengan Remote**
-Clone Repository dari Remote: git clone [url_repository]
-Menambahkan Remote Baru: git remote add origin [url_repository]
-Push Perubahan ke Remote:git push origin [nama_branch]
-Pull Perubahan dari Remote: git pull origin [nama_branch]
+- Clone Repository dari Remote:
+  ```bash
+  git clone [url_repository]
+  ```
+- Menambahkan Remote Baru:
+  ```bash
+  git remote add origin [url_repository]
+  ```
+- Push Perubahan ke Remote:
+  ```bash
+  git push origin [nama_branch]
+  ```
+- Pull Perubahan dari Remote:
+  ```bash
+  git pull origin [nama_branch]
+  ```
 
 ### 7. **Menghapus File**
-Menghapus File dari Repository: git rm [nama_file]
+- Menghapus File dari Repository:
+  ```bash
+  git rm [nama_file]
+  ```
 
+---
 
+## Cara Menggunakan SSH
+
+### 1. **Konfigurasi SSH di Komputer**
+- Generate SSH Key (Jika belum memiliki kunci SSH, buat kunci baru):
+  ```bash
+  ssh-keygen -t rsa -b 4096 -C "email@example.com"
+  ```
+
+### 2. **Tambahkan SSH Key ke GitHub**
+- Tampilkan kunci publik:
+  ```bash
+  cat ~/.ssh/id_rsa.pub
+  ```
+- Masuk ke GitHub → Settings → SSH and GPG Keys → New SSH Key.
+- Paste kunci publik dan klik **Add SSH Key**.
+
+### 3. **Gunakan SSH untuk Repository**
+- Ubah URL remote menjadi SSH:
+  ```bash
+  git remote set-url origin git@github.com:username/StudyGroup-MP-Motionlab.git
+  ```
+
+### 4. **Uji Koneksi SSH ke GitHub**
+- Uji koneksi dengan perintah:
+  ```bash
+  ssh -T git@github.com
+  ```
+- Jika berhasil, akan muncul pesan seperti ini:
+  ```
+  Hi [username]! You've successfully authenticated, but GitHub does not provide shell access.
+  ```
+
+---
+
+Semua perintah sekarang ditampilkan dalam blok kode yang membuatnya lebih mudah dibaca dan diidentifikasi. Jika ada tambahan atau penyesuaian lain, beri tahu saya! 😊
