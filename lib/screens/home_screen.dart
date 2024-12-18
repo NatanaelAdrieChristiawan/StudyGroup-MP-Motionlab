@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'product_detail_screen.dart';
 import 'login_screen.dart'; // Import LoginScreen for logout navigation
+import '../models/product_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // GlobalKey for controlling the Scaffold's state
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      key: scaffoldKey,  // Attach the key to the Scaffold
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -19,7 +19,6 @@ class HomeScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.black),
           onPressed: () {
-            // Use the global key to open the drawer
             scaffoldKey.currentState?.openDrawer();
           },
         ),
@@ -46,25 +45,20 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF00623B),
         child: Column(
           children: [
-            // Drawer header 
-           DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.white, // Set the background color of the header to white
-              ),
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.white),
               child: Center(
                 child: Image.asset(
-                  'assets/images/logo.png', // Use the logo image for the header
-                  height: 100, // Adjust the height as per your preference
-                  width: 100, // Adjust the width as per your preference
+                  'assets/images/logo.png',
+                  height: 100,
+                  width: 100,
                 ),
               ),
             ),
-            // Logout button in the drawer
             ListTile(
-              leading: const Icon(Icons.logout, color: Colors.white,),
-              title: const Text('Logout', style: TextStyle(color: Colors.white),),
+              leading: const Icon(Icons.logout, color: Colors.white),
+              title: const Text('Logout', style: TextStyle(color: Colors.white)),
               onTap: () {
-                // Navigate to login screen on logout
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -77,7 +71,6 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
           const Padding(
             padding: EdgeInsets.all(30.0),
             child: Column(
@@ -91,8 +84,6 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
@@ -108,8 +99,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Horizontal Scrollable Category Tabs
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
             child: SingleChildScrollView(
@@ -125,8 +114,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Product List Section
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
@@ -135,8 +122,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 35),
-
-          // Scrollable Product Section
           Expanded(
             child: SingleChildScrollView(
               child: GridView.builder(
@@ -147,29 +132,29 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                itemCount: 4, // Number of products
+                itemCount: productList.length,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(), // Disable scroll on GridView
+                physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
+                  final product = productList[index];
                   return GestureDetector(
                     onTap: () {
-                      // Navigate to product detail screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductDetailScreen(
-                            imageUrl: productData[index]['imageUrl']!,
-                            name: productData[index]['name']!,
-                            price: productData[index]['price']!,
-                            description: productData[index]['description']!,
+                            imageUrl: product.imageUrl,
+                            name: product.name,
+                            price: product.price.toStringAsFixed(2),
+                            description: product.description,
                           ),
                         ),
                       );
                     },
                     child: ProductCard(
-                      imageUrl: productData[index]['imageUrl']!,
-                      name: productData[index]['name']!,
-                      price: productData[index]['price']!,
+                      imageUrl: product.imageUrl,
+                      name: product.name,
+                      price: product.price,
                     ),
                   );
                 },
@@ -178,28 +163,28 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      // Bottom App Bar
-      bottomNavigationBar: const BottomAppBar(
-        color: Color(0xFF00623B),
+      bottomNavigationBar: BottomAppBar(
+        color: const Color(0xFF00623B),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: Icon(Icons.home, color: Colors.white, size: 32),
-              onPressed: null, // Add your onPressed functionality here
+              icon: const Icon(Icons.home, color: Colors.white, size: 32),
+              onPressed: () {
+                // Navigasi ke Home jika dibutuhkan
+              },
             ),
             IconButton(
-              icon: Icon(Icons.account_balance_wallet_outlined,
-                  color: Colors.white, size: 32),
-              onPressed: null,
+              icon: const Icon(Icons.favorite_border, color: Colors.white, size: 32),
+              onPressed: () {
+                // Aksi untuk halaman Favorite
+              },
             ),
             IconButton(
-              icon: Icon(Icons.favorite_border, color: Colors.white, size: 32),
-              onPressed: null,
-            ),
-            IconButton(
-              icon: Icon(Icons.notifications_none, color: Colors.white, size: 32),
-              onPressed: null,
+              icon: const Icon(Icons.person_outline, color: Colors.white, size: 32),
+              onPressed: () {
+                // Aksi untuk halaman Profile
+              },
             ),
           ],
         ),
@@ -221,17 +206,13 @@ class CategoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 35,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 10),
       margin: const EdgeInsets.only(left: 16),
       decoration: BoxDecoration(
         color: isActive
             ? const Color(0xFF00623B)
             : const Color.fromARGB(255, 233, 233, 233),
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.grey[300]!),
       ),
       child: Text(
         text,
@@ -248,7 +229,7 @@ class CategoryTab extends StatelessWidget {
 class ProductCard extends StatefulWidget {
   final String imageUrl;
   final String name;
-  final String price;
+  final double price;
 
   const ProductCard({
     super.key,
@@ -266,21 +247,21 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromARGB(255, 161, 161, 161),
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          )
-        ],
-      ),
-      child: Stack(
-        children: [
-          Column(
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromARGB(255, 161, 161, 161),
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
@@ -302,59 +283,60 @@ class _ProductCardState extends State<ProductCard> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
-                  "\$${widget.price}",
+                  "\$${widget.price.toStringAsFixed(2)}",
                   style: const TextStyle(color: Color(0xFF00623B), fontSize: 16),
                 ),
               ),
             ],
           ),
-          // Icon love
-          Positioned(
-            right: 8,
-            bottom: 2,
-            child: IconButton(
-              icon: Icon(
-                Icons.favorite,
-                color: isLiked ? Colors.red : Colors.grey,
-                size: 22,
-              ),
-              onPressed: () {
-                setState(() {
-                  isLiked = !isLiked;
-                });
-              },
+        ),
+        // Icon love di kanan bawah
+        Positioned(
+          right: 8,
+          bottom: 8,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                isLiked = !isLiked; // Toggle status icon love
+              });
+            },
+            child: Icon(
+              Icons.favorite,
+              color: isLiked ? Colors.red : Colors.grey, // Warna berubah saat ditekan
+              size: 24,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-// Dummy product data
-final List<Map<String, String>> productData = [
-  {
-    "imageUrl": "assets/images/smartwatch.png",
-    "name": "Mi Band 8 Pro",
-    "price": "54.00",
-    "description": "The Mi Band 8 Pro is a smart fitness tracker with advanced health tracking features, including heart rate monitor and sleep analysis.The Mi Band 8 Pro is a smart fitness tracker with advanced health tracking features, including heart rate monitor and sleep analysis.The Mi Band 8 Pro is a smart fitness tracker with advanced health tracking features, including heart rate monitor and sleep analysis.The Mi Band 8 Pro is a smart fitness tracker with advanced health tracking features, including heart rate monitor and sleep analysis.The Mi Band 8 Pro is a smart fitness tracker with advanced health tracking features, including heart rate monitor and sleep analysis.The Mi Band 8 Pro is a smart fitness tracker with advanced health tracking features, including heart rate monitor and sleep analysis."
-  },
-  {
-    "imageUrl": "assets/images/baju2.png",
-    "name": "Lycra Men's Shirt",
-    "price": "12.00",
-    "description": "This Lycra men's shirt is made with a breathable and flexible fabric perfect for daily wear and sports activities."
-  },
-  {
-    "imageUrl": "assets/images/headphone1.png",
-    "name": "Gaming Headset",
-    "price": "29.00",
-    "description": "A high-quality gaming headset designed for comfort with great sound quality and noise cancellation."
-  },
-  {
-    "imageUrl": "assets/images/sepatu2.png",
-    "name": "Running Shoes",
-    "price": "45.00",
-    "description": "Lightweight and durable running shoes, perfect for long-distance running and gym workouts."
-  },
+
+// Dummy Product List
+final List<Product> productList = [
+  Product(
+    imageUrl: "assets/images/smartwatch.png",
+    name: "Mi Band 8 Pro",
+    price: 54.00,
+    description: "A smart fitness tracker with advanced health tracking features.",
+  ),
+  Product(
+    imageUrl: "assets/images/baju2.png",
+    name: "Lycra Men's Shirt",
+    price: 12.00,
+    description: "Breathable and flexible fabric perfect for daily wear.",
+  ),
+  Product(
+    imageUrl: "assets/images/headphone1.png",
+    name: "Gaming Headset",
+    price: 29.00,
+    description: "High-quality gaming headset with noise cancellation.",
+  ),
+  Product(
+    imageUrl: "assets/images/sepatu2.png",
+    name: "Running Shoes",
+    price: 45.00,
+    description: "Durable running shoes, perfect for workouts.",
+  ),
 ];

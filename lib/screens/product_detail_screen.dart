@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/cart_controller.dart';
+import '../models/product_model.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final String imageUrl;
@@ -20,6 +23,7 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool isLiked = false; // Status untuk ikon love
+  final CartController cartController = Get.put(CartController()); // Inisialisasi CartController
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +55,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView( // Konten scrollable
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +75,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Nama produk dan harga tetap di kiri
+                  // Nama produk dan harga
                   Text(
                     widget.name,
                     style: const TextStyle(
@@ -82,7 +86,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "\$${widget.price}",
+                    "\$${double.parse(widget.price).toStringAsFixed(2)}",
                     style: const TextStyle(
                       fontSize: 20,
                       color: Color(0xFF00623B),
@@ -91,7 +95,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Deskripsi produk dinamis
+                  // Deskripsi produk
                   Text(
                     widget.description,
                     style: const TextStyle(
@@ -106,17 +110,28 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ),
 
-          // Tombol Add to Cart tetap di bawah
+          // Tombol Add to Cart
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: ElevatedButton(
               onPressed: () {
-                // Logika pembelian produk bisa ditambahkan di sini
+                // Tambahkan produk ke keranjang
+                cartController.addProduct(
+                  Product(
+                    name: widget.name,
+                    imageUrl: widget.imageUrl,
+                    price: double.parse(widget.price),
+                    description: widget.description,
+                  ),
+                );
+
+                // Navigasi ke halaman Cart
+                Get.toNamed('/cart'); // Pastikan rute sudah diatur di main.dart
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00623B), // Warna tombol
+                backgroundColor: const Color(0xFF00623B),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                minimumSize: const Size(double.infinity, 50), // Tombol lebar penuh
+                minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
