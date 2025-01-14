@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'product_detail_screen.dart';
-import 'login_screen.dart'; // Import LoginScreen for logout navigation
-import '../models/product_model.dart';
+import 'package:get/get.dart'; // Import GetX
+import '../controllers/product_controller.dart'; // Import ProductController
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final ProductController productController = Get.put(ProductController());
+
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +60,7 @@ class HomeScreen extends StatelessWidget {
               leading: const Icon(Icons.logout, color: Colors.white),
               title: const Text('Logout', style: TextStyle(color: Colors.white)),
               onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
+                Get.offAllNamed('/login'); // Navigasi menggunakan GetX
               },
             ),
           ],
@@ -124,41 +122,41 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 35),
           Expanded(
             child: SingleChildScrollView(
-              child: GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.8,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: productList.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final product = productList[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailScreen(
-                            imageUrl: product.imageUrl,
-                            name: product.name,
-                            price: product.price.toStringAsFixed(2),
-                            description: product.description,
-                          ),
-                        ),
-                      );
-                    },
-                    child: ProductCard(
-                      imageUrl: product.imageUrl,
-                      name: product.name,
-                      price: product.price,
-                    ),
-                  );
-                },
-              ),
+              child: Obx(() {
+                return GridView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.8,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: productController.products.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final product = productController.products[index];
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigasi ke halaman detail produk menggunakan GetX
+                        Get.toNamed(
+                          '/product-detail',
+                          arguments: product,
+                        );
+                      },
+                      child: ProductCard(
+                        imageUrl: product.imageUrl,
+                        name: product.name,
+                        price: product.price,
+                        isLiked: product.isLiked,
+                        onLikePressed: (isLiked) {
+                          productController.toggleLike(index);
+                        },
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ),
         ],
@@ -170,21 +168,15 @@ class HomeScreen extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.home, color: Colors.white, size: 32),
-              onPressed: () {
-                // Navigasi ke Home jika dibutuhkan
-              },
+              onPressed: () {},
             ),
             IconButton(
               icon: const Icon(Icons.favorite_border, color: Colors.white, size: 32),
-              onPressed: () {
-                // Aksi untuk halaman Favorite
-              },
+              onPressed: () {},
             ),
             IconButton(
               icon: const Icon(Icons.person_outline, color: Colors.white, size: 32),
-              onPressed: () {
-                // Aksi untuk halaman Profile
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -226,24 +218,21 @@ class CategoryTab extends StatelessWidget {
   }
 }
 
-class ProductCard extends StatefulWidget {
+class ProductCard extends StatelessWidget {
   final String imageUrl;
   final String name;
   final double price;
+  final bool isLiked;
+  final ValueChanged<bool> onLikePressed;
 
   const ProductCard({
     super.key,
     required this.imageUrl,
     required this.name,
     required this.price,
+    required this.isLiked,
+    required this.onLikePressed,
   });
-
-  @override
-  _ProductCardState createState() => _ProductCardState();
-}
-
-class _ProductCardState extends State<ProductCard> {
-  bool isLiked = false; // Status untuk ikon love
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +256,7 @@ class _ProductCardState extends State<ProductCard> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  widget.imageUrl,
+                  imageUrl,
                   fit: BoxFit.cover,
                   height: 155,
                   width: double.infinity,
@@ -276,67 +265,32 @@ class _ProductCardState extends State<ProductCard> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  widget.name,
+                  name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
-                  "\$${widget.price.toStringAsFixed(2)}",
+                  "\$${price.toStringAsFixed(2)}",
                   style: const TextStyle(color: Color(0xFF00623B), fontSize: 16),
                 ),
               ),
             ],
           ),
         ),
-        // Icon love di kanan bawah
         Positioned(
           right: 8,
           bottom: 8,
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                isLiked = !isLiked; // Toggle status icon love
-              });
-            },
-            child: Icon(
-              Icons.favorite,
-              color: isLiked ? Colors.red : Colors.grey, // Warna berubah saat ditekan
-              size: 24,
+          child: IconButton(
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border,
+              color: isLiked ? Colors.red : Colors.grey,
             ),
+            onPressed: () => onLikePressed(!isLiked),
           ),
         ),
       ],
     );
   }
 }
-
-
-// Dummy Product List
-final List<Product> productList = [
-  Product(
-    imageUrl: "assets/images/smartwatch.png",
-    name: "Mi Band 8 Pro",
-    price: 54.00,
-    description: "A smart fitness tracker with advanced health tracking features.",
-  ),
-  Product(
-    imageUrl: "assets/images/baju2.png",
-    name: "Lycra Men's Shirt",
-    price: 12.00,
-    description: "Breathable and flexible fabric perfect for daily wear.",
-  ),
-  Product(
-    imageUrl: "assets/images/headphone1.png",
-    name: "Gaming Headset",
-    price: 29.00,
-    description: "High-quality gaming headset with noise cancellation.",
-  ),
-  Product(
-    imageUrl: "assets/images/sepatu2.png",
-    name: "Running Shoes",
-    price: 45.00,
-    description: "Durable running shoes, perfect for workouts.",
-  ),
-];

@@ -3,30 +3,27 @@ import 'package:get/get.dart';
 import '../controllers/cart_controller.dart';
 import '../models/product_model.dart';
 
-class ProductDetailScreen extends StatefulWidget {
-  final String imageUrl;
-  final String name;
-  final String price;
-  final String description;
+class ProductDetailScreen extends StatelessWidget {
+  final CartController cartController = Get.put(CartController());
 
-  const ProductDetailScreen({
-    super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.price,
-    required this.description,
-  });
-
-  @override
-  _ProductDetailScreenState createState() => _ProductDetailScreenState();
-}
-
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  bool isLiked = false; // Status untuk ikon love
-  final CartController cartController = Get.put(CartController()); // Inisialisasi CartController
+  ProductDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Ambil data produk dari arguments atau tampilkan fallback jika null
+    final Product? product = Get.arguments;
+
+    if (product == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Product Not Found'),
+        ),
+        body: const Center(
+          child: Text('No product data available!'),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -34,23 +31,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context); // Kembali ke halaman sebelumnya
-          },
+          onPressed: () => Get.back(),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.favorite,
-              color: isLiked ? Colors.red : Colors.grey,
-            ),
-            onPressed: () {
-              setState(() {
-                isLiked = !isLiked;
-              });
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -60,13 +42,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Gambar produk besar
                   Hero(
-                    tag: widget.imageUrl,
+                    tag: product.imageUrl,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Image.asset(
-                        widget.imageUrl,
+                        product.imageUrl,
                         height: 400,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -74,10 +55,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Nama produk dan harga
                   Text(
-                    widget.name,
+                    product.name,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -86,7 +65,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "\$${double.parse(widget.price).toStringAsFixed(2)}",
+                    "\$${product.price.toStringAsFixed(2)}",
                     style: const TextStyle(
                       fontSize: 20,
                       color: Color(0xFF00623B),
@@ -94,10 +73,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-
-                  // Deskripsi produk
                   Text(
-                    widget.description,
+                    product.description,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black87,
@@ -109,24 +86,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ),
           ),
-
-          // Tombol Add to Cart
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: ElevatedButton(
               onPressed: () {
-                // Tambahkan produk ke keranjang
-                cartController.addProduct(
-                  Product(
-                    name: widget.name,
-                    imageUrl: widget.imageUrl,
-                    price: double.parse(widget.price),
-                    description: widget.description,
-                  ),
-                );
-
-                // Navigasi ke halaman Cart
-                Get.toNamed('/cart'); // Pastikan rute sudah diatur di main.dart
+                cartController.addProduct(product);
+                Get.toNamed('/cart');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00623B),

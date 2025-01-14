@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_ui/screens/login_screen.dart';
+import 'package:get/get.dart'; // Import GetX
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -24,7 +24,7 @@ class RegisterScreen extends StatelessWidget {
               // Teks tambahan di bawah judul
               const Text(
                 'Create your account for Happy Shopping',
-                style: TextStyle(fontSize: 15), // Ukuran font 18
+                style: TextStyle(fontSize: 15),
               ),
               const SizedBox(height: 40),
 
@@ -76,11 +76,8 @@ class RegisterScreen extends StatelessWidget {
               // Tombol Register
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen()), 
-                  );
+                  // Navigasi menggunakan Get.toNamed ke halaman login
+                  Get.toNamed('/login');
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
@@ -92,7 +89,7 @@ class RegisterScreen extends StatelessWidget {
                 child: const Text(
                   'Register',
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                    color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),
@@ -107,8 +104,8 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigasi kembali ke halaman login
-                      Navigator.pop(context);
+                      // Navigasi kembali ke halaman login menggunakan Get
+                      Get.back();
                     },
                     child: const Text(
                       'Login',

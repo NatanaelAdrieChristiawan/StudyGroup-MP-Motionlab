@@ -87,16 +87,16 @@ class CartPage extends StatelessWidget {
 
               // Button Buy Now
               ElevatedButton(
-                onPressed: () {
-                  final totalPrice = cartController.cartItems.entries.fold(
-                    0.0,
-                    (sum, entry) => sum + (entry.key.price * entry.value),
-                  );
-                  // Navigasi ke halaman pembayaran dan kirim total harga
-                  Get.toNamed('/payment', arguments: totalPrice);
-                },
+                onPressed: cartController.cartItems.isNotEmpty
+                    ? () {
+                        // Navigasi ke halaman pembayaran dan kirim total harga
+                        Get.toNamed('/payment', arguments: totalPrice);
+                      }
+                    : null, // Disable button jika keranjang kosong
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00623B),
+                  backgroundColor: cartController.cartItems.isNotEmpty
+                      ? const Color(0xFF00623B)
+                      : Colors.grey, // Warna tombol disabled
                   padding: const EdgeInsets.all(16),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
