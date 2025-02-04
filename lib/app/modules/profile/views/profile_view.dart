@@ -41,7 +41,7 @@ class ProfileView extends GetView<ProfileController> {
           IconButton(
             icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
             onPressed: () {
-              Get.toNamed(Routes.CART);
+              Get.toNamed(Routes.HOME);
             },
           ),
         ],

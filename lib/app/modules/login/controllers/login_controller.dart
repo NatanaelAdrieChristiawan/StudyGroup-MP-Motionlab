@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:study_group_flutter/app/data/models/user_model.dart';
 import '../../../data/service/remote_datasource_service.dart';
 
@@ -8,7 +9,7 @@ class LoginController extends GetxController {
   TextEditingController passwordController = TextEditingController();
   ProductService remoteDatasourceService = ProductService();
 
-  // Ubah isLoading menjadi RxBool
+  // Ubah isLoading menjadi RxBool agar dapat digunakan dengan Obx
   var isLoading = false.obs;
 
   String errorMessage = '';
@@ -42,18 +43,30 @@ class LoginController extends GetxController {
       Get.snackbar('Validation Error', validationError);
       return;
     }
-    isLoading.value = true; // Perbarui nilai RxBool
+
+    isLoading.value = true; // Mulai loading
     try {
       final UserModel user = await remoteDatasourceService.loginService(
         username: usernameController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      // Simpan data login ke SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_logged_in', true);
+      await prefs.setString('username', usernameController.text.trim());
+      await prefs.setString('password', passwordController.text.trim());
+
+      print('Username saved: ${prefs.getString('username')}');
+      print('Password saved: ${prefs.getString('password')}');
+
       Get.snackbar('Login Successful', 'Welcome, ${user.firstName}');
-      Get.offNamed('/dashboard');
+      Get.offAllNamed('/dashboard'); // Navigasi ke halaman dashboard
     } catch (e) {
+      print('Login Error: $e');
       Get.snackbar('Login Failed', e.toString());
     } finally {
-      isLoading.value = false; // Perbarui nilai RxBool
+      isLoading.value = false; // Hentikan loading
     }
   }
 }
