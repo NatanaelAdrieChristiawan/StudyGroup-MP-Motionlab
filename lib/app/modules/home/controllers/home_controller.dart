@@ -1,23 +1,33 @@
 import 'package:get/get.dart';
-import 'package:study_group_flutter/service/product_service.dart';
+import '../../../../app/data/service/remote_datasource_service.dart';
+import 'package:study_group_flutter/app/modules/favorite/controllers/favorite_controller.dart';
 import '../../../data/models/product_model_api.dart';
 
 class HomeController extends GetxController {
-  var selectedCategory = 'All'.obs; // Kategori yang dipilih
-  var categories = <String>[].obs; // Daftar kategori dari API
-  var product = Product().obs; // Data produk dari API
-  var isLoading = true.obs; // Status loading buat UI
-  var likes = <int, bool>{}.obs; // Map buat lacak status "liked" per produk
+  var selectedCategory = 'All'.obs;
+  var categories = <String>[].obs;
+  var product = Product().obs;
+  var isLoading = true.obs;
   var categoryScrollPosition = 0.0.obs;
+
+  // Ubah menjadi nullable
+  FavoriteController? favoriteController;
 
   @override
   void onInit() {
     super.onInit();
-    fetchCategories(); // Ambil daftar kategori
-    fetchProducts(); // Ambil semua produk waktu inisialisasi
+
+    // Cek apakah FavoriteController sudah di-register
+    if (Get.isRegistered<FavoriteController>()) {
+      favoriteController = Get.find<FavoriteController>();
+    } else {
+      print("Error: FavoriteController is not registered.");
+    }
+
+    fetchCategories();
+    fetchProducts();
   }
 
-  /// Ambil kategori dari API
   void fetchCategories() async {
     try {
       isLoading.value = true;
@@ -31,7 +41,7 @@ class HomeController extends GetxController {
     } catch (e) {
       print("Error fetching categories: $e");
       categories.value = [
-        'All', // Fallback kalau API gagal
+        'All',
         'beauty',
         'fragrances',
         'furniture',
@@ -41,7 +51,6 @@ class HomeController extends GetxController {
     }
   }
 
-  /// Ambil produk dari API berdasarkan kategori
   void fetchProducts({String? category}) async {
     try {
       isLoading.value = true;
@@ -52,11 +61,7 @@ class HomeController extends GetxController {
                 .getProductsByCategory(category: category) ??
             Product();
       }
-
       selectedCategory.value = category ?? 'All';
-
-      // Reset "likes" untuk produk yang baru diambil
-      initializeLikes();
     } catch (e) {
       print("Error fetching products: $e");
       Get.snackbar('Error', 'Gagal mengambil produk');
@@ -65,35 +70,16 @@ class HomeController extends GetxController {
     }
   }
 
-  /// Inisialisasi "likes" untuk produk yang baru diambil
-  void initializeLikes() {
-    likes.clear();
-    if (product.value.products != null) {
-      for (var i = 0; i < product.value.products!.length; i++) {
-        likes[i] = false; // Default: Tidak disukai
-      }
-    }
+  void saveScrollPosition(double position) {
+    categoryScrollPosition.value = position;
   }
 
-  /// Toggle status "liked" untuk produk tertentu
-void toggleLike(int index) {
-  likes[index] = !(likes[index] ?? false);
-  print('Product $index like status: ${likes[index]}'); // Debugging
-  likes.refresh(); // Refresh untuk memicu UI
-}
-
-void saveScrollPosition(double position) {
-  categoryScrollPosition.value = position; //simpen posisi scroll
-}
-
-  /// Pencarian produk berdasarkan nama
   void searchProducts(String query) {
     if (query.isEmpty) {
-      fetchProducts(category: selectedCategory.value); // Reset ke semua produk
+      fetchProducts(category: selectedCategory.value);
       return;
     }
 
-    // Filter produk berdasarkan judul yang sesuai dengan query
     final filteredProducts = product.value.products
         ?.where((item) =>
             item.title?.toLowerCase().contains(query.toLowerCase()) ?? false)
@@ -105,5 +91,20 @@ void saveScrollPosition(double position) {
       skip: 0,
       limit: filteredProducts?.length ?? 0,
     );
+  }
+
+  bool isFavorite(int? productId) {
+    // Tambahkan fallback jika favoriteController null
+    return productId != null &&
+        (favoriteController?.favoriteProducts.contains(productId) ?? false);
+  }
+
+  void toggleFavorite(int productId) {
+    // Gunakan Get.find langsung jika favoriteController null
+    if (favoriteController != null) {
+      favoriteController!.toggleFavorite(productId);
+    } else {
+      Get.find<FavoriteController>().toggleFavorite(productId);
+    }
   }
 }

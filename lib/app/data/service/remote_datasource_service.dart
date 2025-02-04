@@ -1,7 +1,11 @@
-import '../app/data/models/product_model_api.dart';
-import '../app/shared/constanta.dart';
+import '../models/product_model_api.dart';
+import '../../shared/constanta.dart';
+import 'package:dio/dio.dart';
+import '../models/user_model.dart';
 
 class ProductService {
+
+  final Dio dio = Dio();
   Future<Product?> getProducts() async {
     try {
       final response = await dio.get('$url/products');
@@ -30,7 +34,8 @@ class ProductService {
 
   Future<List<String>?> getProductCategories() async {
     try {
-      final response = await dio.get('$url/products/category-list'); // Ganti ke category-list
+      final response = await dio
+          .get('$url/products/category-list'); // Ganti ke category-list
       print("Response status: ${response.statusCode}");
       print("Response data: ${response.data}");
       if (response.statusCode == 200) {
@@ -49,7 +54,8 @@ class ProductService {
       print("Response data for $category: ${response.data}");
 
       if (response.statusCode == 200 && response.data != null) {
-        if (response.data['products'] == null || response.data['products'].isEmpty) {
+        if (response.data['products'] == null ||
+            response.data['products'].isEmpty) {
           throw Exception("No products found for category $category");
         }
         return Product.fromJson(response.data);
@@ -58,6 +64,34 @@ class ProductService {
     } catch (e) {
       print("Error in getProductsByCategory: $e");
       throw Exception("Error fetching products for category $category: $e");
+    }
+  }
+
+  Future<UserModel> loginService({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      final response = await dio.post(
+        '$url/auth/login',
+        data: {
+          'username': username,
+          'password': password,
+        },
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        return UserModel.fromJson(response.data);
+      } else {
+        throw Exception('Login failed. Status code: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(e.response?.data['message']);
+      } else {
+        throw Exception('Network error: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Error during login: $e');
     }
   }
 }

@@ -12,13 +12,16 @@ import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+import '../modules/profile/views/profile_view.dart';
+import '../modules/favorite/bindings/favorite_binding.dart';
+import '../modules/favorite/views/favorite_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
 
-  // ignore: constant_identifier_names
   static const INITIAL = Routes.LOGIN;
 
   static final routes = [
@@ -51,6 +54,16 @@ class AppPages {
       name: _Paths.DETAIL_PRODUCT,
       page: () => const DetailProductView(),
       binding: DetailProductBinding(),
+    ),
+    GetPage(
+      name: _Paths.FAVORITE,
+      page: () => const FavoriteView(),
+      binding: FavoriteBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
   ];
 }

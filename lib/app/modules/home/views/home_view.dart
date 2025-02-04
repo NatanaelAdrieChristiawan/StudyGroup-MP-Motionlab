@@ -147,7 +147,7 @@ class HomeView extends GetView<HomeController> {
 
             return GestureDetector(
               onTap: () {
-                controller.saveScrollPosition(index * 120.0); // Simpen posisinya scroll
+                controller.saveScrollPosition(index * 120.0);
                 controller.fetchProducts(category: category);
               },
               child: Container(
@@ -179,40 +179,41 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildProductList() {
-    return GridView.builder(
-      shrinkWrap: true,
-      primary: false,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.75,
-      ),
-      itemCount: controller.product.value.products?.length ?? 0,
-      itemBuilder: (context, index) {
-        final data = controller.product.value.products?[index];
+  return GridView.builder(
+  shrinkWrap: true,
+  primary: false,
+  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2,
+    crossAxisSpacing: 16,
+    mainAxisSpacing: 16,
+    childAspectRatio: 0.75,
+  ),
+  itemCount: controller.product.value.products?.length ?? 0,
+  itemBuilder: (context, index) {
+    final data = controller.product.value.products?[index];
 
-        return Obx(() {
-          return ProductCard(
-            product: data,
-            isLiked: controller.likes[index] ?? false,
-            onLikePressed: () => controller.toggleLike(index),
-            onTap: () {
-              Get.toNamed(
-                '/detail-product',
-                arguments: {"id": data?.id ?? 0},
-              );
-            },
+    return Obx(() {
+      return ProductCard(
+        product: data,
+        isLiked: controller.isFavorite(data?.id), // Gunakan isFavorite dari FavoriteController
+        onLikePressed: () {
+          if (data?.id != null) {
+            controller.toggleFavorite(data!.id!);
+          }
+        },
+        onTap: () {
+          Get.toNamed(
+            '/detail-product',
+            arguments: {"id": data?.id ?? 0},
           );
-        });
-      },
-    );
+        },
+      );
+    });
+  },
+);
   }
 }
 
-
-
-/// Widget Modular untuk Kartu Produk
 class ProductCard extends StatelessWidget {
   final dynamic product;
   final bool isLiked;
@@ -266,7 +267,7 @@ class ProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        product?.title ?? "",
+                        product?.title ?? "No Title",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,

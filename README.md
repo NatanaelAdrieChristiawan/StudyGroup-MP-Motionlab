@@ -1,129 +1,103 @@
+# Flutter Local Storage
 
-# 📱 Belajar API & Future di Flutter
+Flutter menyediakan beberapa solusi untuk penyimpanan data lokal dalam aplikasi, yang memungkinkan pengembang untuk menyimpan data di perangkat pengguna tanpa memerlukan koneksi internet. Beberapa metode penyimpanan lokal yang umum digunakan di Flutter antara lain SharedPreferences, SQLite, dan Hive.
 
-## 🎯 Apa yang Akan Dipelajari?
-Rangkuman ini akan bahas soal **API** dan **Future** di Flutter.
+## 1. *SharedPreferences*
+   - *Deskripsi:* SharedPreferences digunakan untuk menyimpan data dalam bentuk key-value pair (seperti pengaturan aplikasi).
+   - *Keuntungan:* Mudah digunakan dan ringan.
+   - *Kapan digunakan:* Ideal untuk menyimpan data konfigurasi atau preferensi pengguna (misalnya tema aplikasi, bahasa, dll.).
+   - *Implementasi:*
+     1. Tambahkan dependensi ke pubspec.yaml:
+        yaml
+        dependencies:
+          shared_preferences: ^2.0.15
+        
+     2. Contoh penggunaan:
+        dart
+        import 'package:shared_preferences/shared_preferences.dart';
 
----
+        // Menyimpan data
+        Future<void> saveData() async {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setString('username', 'FlutterUser');
+        }
 
-## 🧠 Apa Itu API dan Future?
+        // Membaca data
+        Future<void> loadData() async {
+          final prefs = await SharedPreferences.getInstance();
+          String? username = prefs.getString('username');
+          print(username);
+        }
+        
 
-### 🔗 API (Application Programming Interface)
-- API itu kayak jembatan komunikasi antara **client** (aplikasi kita) dan **server**.
-- Contoh nyata: Flutter kamu jadi client, terus minta data dari server kayak [DummyJSON API](https://dummyjson.com/docs).
+## 2. *SQLite*
+   - *Deskripsi:* SQLite adalah database ringan yang memungkinkan penyimpanan data terstruktur dalam aplikasi.
+   - *Keuntungan:* Cocok untuk aplikasi yang memerlukan penyimpanan data lebih kompleks dan terstruktur.
+   - *Kapan digunakan:* Ketika data aplikasi melibatkan relasi antar data atau ukuran data yang lebih besar.
+   - *Implementasi:*
+     1. Tambahkan dependensi ke pubspec.yaml:
+        yaml
+        dependencies:
+          sqflite: ^2.0.0+3
+        
+     2. Contoh penggunaan:
+        dart
+        import 'package:sqflite/sqflite.dart';
+        import 'package:path/path.dart';
 
-### ⏳ Future
-- **Future** itu representasi dari sesuatu yang **nggak langsung selesai** alias butuh waktu (asinkron).
-- Contoh:
-  - Ngambil data dari internet.
-  - Buka file dari galeri.
+        Future<Database> openDb() async {
+          return openDatabase(
+            join(await getDatabasesPath(), 'app_database.db'),
+            onCreate: (db, version) {
+              return db.execute(
+                "CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT)",
+              );
+            },
+            version: 1,
+          );
+        }
 
----
+        Future<void> insertUser(User user) async {
+          final db = await openDb();
+          await db.insert(
+            'users',
+            user.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+        
 
-## 🔧 Implementasi
+## 3. *Hive*
+   - *Deskripsi:* Hive adalah database NoSQL yang sangat cepat dan ringan untuk penyimpanan data lokal.
+   - *Keuntungan:* Sangat cepat dan mendukung tipe data yang kompleks. Cocok untuk data yang tidak terstruktur.
+   - *Kapan digunakan:* Ketika Anda membutuhkan penyimpanan data yang sangat cepat atau tidak memerlukan struktur tabel yang kaku.
+   - *Implementasi:*
+     1. Tambahkan dependensi ke pubspec.yaml:
+        yaml
+        dependencies:
+          hive: ^2.0.4
+          hive_flutter: ^1.1.0
+        
+     2. Contoh penggunaan:
+        dart
+        import 'package:hive/hive.dart';
 
-### 1. **Setting Proyek**
-Tambah package HTTP ke file `pubspec.yaml`:
-```yaml
-dependencies:
-  http: ^0.15.0
-```
+        void main() async {
+          await Hive.initFlutter();
 
-Jangan lupa jalanin ini buat instalasi:
-```bash
-flutter pub get
-```
+          var box = await Hive.openBox('myBox');
+          box.put('name', 'Flutter');
 
----
+          print(box.get('name'));  // Output: Flutter
+        }
+        
 
-### 2. **Contoh Kode: Ambil Data dari API**
-Berikut ini contoh gimana cara Flutter ngambil data dari API pake **Future**:
+## 4. *Key Differences*
+   - *SharedPreferences:* Penyimpanan key-value yang cocok untuk data ringan dan konfigurasi aplikasi.
+   - *SQLite:* Penyimpanan relasional, cocok untuk data yang lebih kompleks.
+   - *Hive:* Penyimpanan NoSQL yang sangat cepat dan cocok untuk data yang tidak memerlukan struktur tabel.
 
-```dart
-import 'dart:convert'; // Buat ubah JSON jadi Map
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Package buat HTTP request
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  // Future buat ngambil data dari API
-  Future<Map<String, dynamic>> fetchData() async {
-    final response = await http.get(Uri.parse('https://dummyjson.com/products/1'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body); // Ubah JSON jadi Map
-    } else {
-      throw Exception('Gagal ngambil data');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Contoh API di Flutter'),
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: fetchData(), // Panggil Future
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // Loading
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}')); // Error
-          } else {
-            final data = snapshot.data!;
-            return Center(
-              child: Text('Nama Produk: ${data['title']}'),
-            ); // Tampilkan data
-          }
-        },
-      ),
-    );
-  }
-}
-```
-
----
-
-## 🛠️ Penjelasan Kode
-
-1. **Future Method**:
-   - `fetchData()` dipake buat ambil data dari API.
-   - Kalau berhasil (`statusCode == 200`), JSON diubah ke Map pake `json.decode()`.
-
-2. **FutureBuilder Widget**:
-   - **`future`**: Berisi Future yang bakal dijalanin.
-   - **`builder`**: Ngatur tampilan sesuai status:
-     - **`waiting`**: Tampilkan spinner loading.
-     - **`error`**: Kalau ada masalah, tampilin pesan error.
-     - **`data`**: Tampilkan data API.
-
----
-
-## 🚀 Hasil Akhir
-Aplikasi bakal nampilin nama produk dari API:
-- **Endpoint API**: `https://dummyjson.com/products/1`
-- **Output**: "Nama Produk: iPhone 9"
-
----
-
-## 📚 Referensi
-- [Dokumentasi Flutter](https://flutter.dev/docs)
-- [HTTP Package](https://pub.dev/packages/http)
-- [DummyJSON API](https://dummyjson.com/docs)
+## 5. *Pilih Penyimpanan yang Tepat*
+   - Gunakan *SharedPreferences* jika data yang disimpan bersifat ringan, seperti preferensi pengguna atau pengaturan aplikasi.
+   - Gunakan *SQLite* jika Anda membutuhkan penyimpanan data terstruktur dengan hubungan antar tabel.
+   - Gunakan *Hive* jika Anda memerlukan penyimpanan data yang cepat dan tidak terstruktur.
